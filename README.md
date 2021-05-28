@@ -4,4 +4,4 @@
 
 `cd gg_setup`
 
-`sudo ./gg_setup.sh`
+`python3 gg_registration.py`
