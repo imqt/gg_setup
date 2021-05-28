@@ -284,18 +284,18 @@ def create_things(group_name, edge_device_id):
             continue
         
         print("Default device name(s) for " + group_name + " group: " + group_name + "_D1, " + group_name + "_D2, " + group_name + "_D3, ...")
-        c = inquirer.list_input("Use default name(s)", choices=["Yes", "No"])
-        if c == "Yes":
-            for device_number in range(device_count):
-                devices_names.append(group_name + "_D" + str(device_number + 1))
-        else:
-            for device_number in range(device_count):
-                devices_names.append(inquirer.text("Please provide device " + str(device_number + 1) + "'s name"))
+        # c = inquirer.list_input("Use default name(s)", choices=["Yes", "No"])
+        # if c == "Yes":
+        for device_number in range(device_count):
+            devices_names.append(group_name + "_D" + str(device_number + 1))
+        # else:
+            # for device_number in range(device_count):
+                # devices_names.append(inquirer.text("Please provide device " + str(device_number + 1) + "'s name"))
         
-        c = confirm_answer(devices_names)
-        if c == "Redo":
-            devices_names.clear()
-            continue
+        # c = confirm_answer(devices_names)
+        # if c == "Redo":
+            # devices_names.clear()
+            # continue
         break
 
     devices_list = []
