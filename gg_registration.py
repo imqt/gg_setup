@@ -137,13 +137,13 @@ def create_iot_thing(thing_name):
 
 def create_keys_n_cert(thing_name):
     # Note: https://aws.amazon.com/blogs/iot/understanding-the-aws-iot-security-model/
-    os.mkdir(os.getcwd() + "/" + thing_name)
-    thing_name = os.getcwd() + "/" + thing_name + "/" + thing_name
+    os.mkdir(os.getcwd() + "/Devices/" + thing_name)
+    path = os.getcwd() + "/Devices/" + thing_name + "/" + thing_name
     ret = os.system(
         "aws iot create-keys-and-certificate --set-as-active" 
-        + " --public-key-outfile "  + thing_name +".public.key" 
-        + " --private-key-outfile " + thing_name +".private.key" 
-        + " --certificate-pem-outfile " + thing_name +".cert.pem" 
+        + " --public-key-outfile "  + path +".public.key" 
+        + " --private-key-outfile " + path +".private.key" 
+        + " --certificate-pem-outfile " + path +".cert.pem" 
         + " > /tmp/create-keys-and-certificate-response"
         )
     print("Success" if ret == 0 else "Failed", ": create-keys-and-certificate")
@@ -196,19 +196,8 @@ def create_greengrass_group(group_name):
     group_data = json.load(ggr)
     ggr.close()
 
-    # Move certs into /greengrass/certs
-    ret = os.system("sudo cp ./" + group_name + "_Core" + "/" + group_name+"_Core.public.key" + " /greengrass/certs/core.public.key")
-    print("Success" if ret == 0 else "Failed", ": copied public key into /greengrass/certs")
-    
-    ret = os.system("sudo cp ./" + group_name + "_Core" + "/" + group_name+"_Core.private.key" + " /greengrass/certs/core.private.key")
-    print("Success" if ret == 0 else "Failed", ": copied private key into /greengrass/certs")
-   
-    ret = os.system("sudo cp ./" + group_name + "_Core" + "/" + group_name+"_Core.cert.pem" + " /greengrass/certs/core.cert.pem")
-    print("Success" if ret == 0 else "Failed", ": copied certificate into /greengrass/certs")
+    move_cert_n_keys(group_name)
 
-    ret = os.system("sudo wget https://www.amazontrust.com/repository/AmazonRootCA1.pem -O /greengrass/certs/root.ca.pem")
-    print("Success" if ret == 0 else "Failed", ": downloaded root ca pem /greengrass/certs")
-    
     # Update /greengrass/config/config.json
     update_config_json(core_data["thingArn"])
 
@@ -223,6 +212,20 @@ def create_greengrass_group(group_name):
     
     return group_version_data
 
+def move_cert_n_keys(group_name):
+    # Move certs into /greengrass/certs
+    ret = os.system("sudo cp ./" + group_name + "_Core" + "/" + group_name+"_Core.public.key" + " /greengrass/certs/core.public.key")
+    print("Success" if ret == 0 else "Failed", ": copied public key into /greengrass/certs")
+    
+    ret = os.system("sudo cp ./" + group_name + "_Core" + "/" + group_name+"_Core.private.key" + " /greengrass/certs/core.private.key")
+    print("Success" if ret == 0 else "Failed", ": copied private key into /greengrass/certs")
+   
+    ret = os.system("sudo cp ./" + group_name + "_Core" + "/" + group_name+"_Core.cert.pem" + " /greengrass/certs/core.cert.pem")
+    print("Success" if ret == 0 else "Failed", ": copied certificate into /greengrass/certs")
+
+    ret = os.system("sudo wget https://www.amazontrust.com/repository/AmazonRootCA1.pem -O /greengrass/certs/root.ca.pem")
+    print("Success" if ret == 0 else "Failed", ": downloaded root ca pem /greengrass/certs")
+    
 def create_deployment(group_data):
 
     ret = os.system("aws greengrass create-deployment"
@@ -423,10 +426,16 @@ def main():
     configure_aws_access()
     configure_aws_access_user_input()
     setup_greengrass_core_env()
+
+    os.mkdir(os.getcwd() + "/Devices")
     
     # Main stuff
     group_name = inquirer.text("Enter a greengrass group name")
     group_version_data = create_greengrass_group(group_name)
+
+    ret = os.system("sudo cp /greengrass/certs/root.ca.pem " + os.getcwd() + "/Devices/root.ca.pem")
+    print("Success" if ret == 0 else "Failed", ": copied root ca pem to /Devices")
+    
     return
 
 def confirm_answer(answer):
