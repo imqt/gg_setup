@@ -1,0 +1,13 @@
+{
+    "Checkbox": {
+        "selection_color": "bold",
+        "selection_icon": ">",
+        "selected_icon": "[x]",
+        "selected_color": "bold",
+        "unselected_color": "darkgrey",
+        "unselected_icon": "[ ]"
+    },
+    "List": {
+		"selection_color": "yellow"
+	}
+}
