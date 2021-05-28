@@ -214,13 +214,13 @@ def create_greengrass_group(group_name):
 
 def move_cert_n_keys(group_name):
     # Move certs into /greengrass/certs
-    ret = os.system("sudo cp ./" + group_name + "_Core" + "/" + group_name+"_Core.public.key" + " /greengrass/certs/core.public.key")
+    ret = os.system("sudo cp ./Devices/" + group_name + "_Core" + "/" + group_name+"_Core.public.key" + " /greengrass/certs/core.public.key")
     print("Success" if ret == 0 else "Failed", ": copied public key into /greengrass/certs")
     
-    ret = os.system("sudo cp ./" + group_name + "_Core" + "/" + group_name+"_Core.private.key" + " /greengrass/certs/core.private.key")
+    ret = os.system("sudo cp ./Devices/" + group_name + "_Core" + "/" + group_name+"_Core.private.key" + " /greengrass/certs/core.private.key")
     print("Success" if ret == 0 else "Failed", ": copied private key into /greengrass/certs")
    
-    ret = os.system("sudo cp ./" + group_name + "_Core" + "/" + group_name+"_Core.cert.pem" + " /greengrass/certs/core.cert.pem")
+    ret = os.system("sudo cp ./Devices/" + group_name + "_Core" + "/" + group_name+"_Core.cert.pem" + " /greengrass/certs/core.cert.pem")
     print("Success" if ret == 0 else "Failed", ": copied certificate into /greengrass/certs")
 
     ret = os.system("sudo wget https://www.amazontrust.com/repository/AmazonRootCA1.pem -O /greengrass/certs/root.ca.pem")
@@ -260,12 +260,12 @@ def update_config_json(coreArn):
 
         config["coreThing"]["thingArn"] = coreArn
 
-        # ret = os.system("aws iot describe-endpoint > /tmp/iot-endpoint")
-        # der = open("/tmp/iot-endpoint")
-        # endpoint_address = json.load(der)["endpointAddress"]
-        # der.close()
+        ret = os.system("aws iot describe-endpoint --endpoint-type iot:Data-ATS > /tmp/iot-endpoint")
+        der = open("/tmp/iot-endpoint")
+        endpoint_address = json.load(der)["endpointAddress"]
+        der.close()
 
-        # config["coreThing"]["iotHost"] = endpoint_address
+        config["coreThing"]["iotHost"] = endpoint_address
 
     with open("config.json", "w") as config_file:
         config_file.write(json.dumps(config, indent=4))
@@ -309,9 +309,9 @@ def create_things(group_name, edge_device_id):
             }
         )
 
-    # Send device name to DB
-    device_id = client.execute(putDevice, variable_values={"iot_name":device_name, "edge_device_id":edge_device_id})["putDevice"]["id"]
-    configure_sensor_per_device(device_id, device_name)
+        # Send device name to DB
+        device_id = client.execute(putDevice, variable_values={"iot_name":device_name, "edge_device_id":edge_device_id})["putDevice"]["id"]
+        configure_sensor_per_device(device_id, device_name)
 
     return devices_list
 
@@ -435,7 +435,6 @@ def main():
 
     ret = os.system("sudo cp /greengrass/certs/root.ca.pem " + os.getcwd() + "/Devices/root.ca.pem")
     print("Success" if ret == 0 else "Failed", ": copied root ca pem to /Devices")
-    
     return
 
 def confirm_answer(answer):
@@ -506,6 +505,9 @@ def setup_greengrass_core_env():
     
     ret = os.system("sudo tar -xzvf greengrass-linux-armv7l-1.11.1.tar.gz -C /")
     print("Success" if ret == 0 else "Failed", ": extract gg env folder")
+    
+    ret = os.system("sudo rm -r greengrass-linux-armv7l-1.11.1.tar.gz")
+    print("Success" if ret == 0 else "Failed", ": removed gg_env zip file")
     
     ret = os.system("sudo adduser --system ggc_user")
     print("Success" if ret == 0 else "Failed", ": adduser --system ggc_user")

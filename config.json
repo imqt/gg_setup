@@ -3,7 +3,7 @@
         "caPath": "root.ca.pem",
         "certPath": "core.cert.pem",
         "keyPath": "core.private.key",
-        "thingArn": "arn:aws:iot:us-west-2:434166946703:thing/TestWAndrey_AAAA_Core",
+        "thingArn": "arn:aws:iot:us-west-2:434166946703:thing/HALO2FTW_Core",
         "iotHost": "a1h3dtue2d1k3-ats.iot.us-west-2.amazonaws.com",
         "ggHost": "greengrass-ats.iot.us-west-2.amazonaws.com",
         "keepAlive": 600
